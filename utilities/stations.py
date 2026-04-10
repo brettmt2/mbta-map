@@ -8,7 +8,8 @@ load_dotenv()
 '''
 Helper function to get static list of station names.
 '''
-async def get_station_names():
+async def get_station_metadata():
+    stations = {}
     url = 'https://api-v3.mbta.com/stops'
     routes = ['Red', 'Orange']
     headers = {
@@ -26,14 +27,25 @@ async def get_station_names():
             ) for route in routes]
         )
 
-    return data
+    # get each station metadata per route
+    for route, response in zip(routes, data):
+        r_data = response.json()['data']
 
-# asyncio.run(get_station_names())
-            
+        for s in r_data:
+            attrs = s.get('attributes')
 
-            
+            # if station already exists, append extra route
+            if s.get('id') in stations:
+                stations[s.get('id')].get('route').append(route)
+            else:
+                stations[s.get('id')] = {
+                    "name": attrs.get('name'),
+                    "route": [route],
+                    "coords": [attrs.get('longitude'), attrs.get('latitude')]
+                }
 
-            
+    return stations
 
+data = asyncio.run(get_station_metadata())
 
-
+print(data)
