@@ -2,11 +2,13 @@ import os
 from dotenv import load_dotenv
 import httpx
 import asyncio
+import json
 
 load_dotenv()
 
 '''
 Helper function to get static list of station names.
+Outputs static/stations.json
 '''
 async def get_station_metadata():
     stations = {}
@@ -48,4 +50,5 @@ async def get_station_metadata():
 
 data = asyncio.run(get_station_metadata())
 
-print(data)
+with open("../static/stations.json", "w") as f:
+    json.dump(data, f, indent=2)
