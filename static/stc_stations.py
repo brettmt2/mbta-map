@@ -1,4 +1,4 @@
-{
+stc_stations = {
   "place-alfcl": {
     "name": "Alewife",
     "route": [
