@@ -25,24 +25,38 @@ async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str)
     data = data['data']
     return {parent_station: data}
 
+def filter_valid_times(line: str, station_data: dict[list]):
+    now = datetime.now()
+    valid = []
+    predictions = next(iter(station_data.values()))
+    
+    for trip in predictions:
+        trip_type = trip.get('relationships').get('route').get('data').get('id')
+        arrival = trip.get('attributes').get('arrival_time')
+
+        if trip_type == line and arrival:
+            time = datetime.fromisoformat(arrival).replace(tzinfo=None)
+            if time > now: # valid time and route
+                trip_id = trip.get('relationships').get('trip').get('data').get('id')
+                valid.append([trip_id, time])
+
+    return valid[:5]
+
 async def get_line_times(color: str) -> list[dict]:
     async with httpx.AsyncClient() as client:
         data = await asyncio.gather(
             *[get_station_stop_times(client, station) 
               for station in stc_stations if color in stc_stations[station].get('route')]
             )
-        
-    return data
+    
+    times = []
+    for station in data:
+        parent = next(iter(station))
+        valid_times = filter_valid_times(color, station)
+        times.append({parent: valid_times})
 
-def filter_valid_times(line: str, station_data: dict[list]):
-    now = datetime.now()
+    return times
 
-    for _, predictions in station_data.items():
-        for trip in predictions:
-            trip_type = trip.get('relationships').get('route').get('data').get('id')
-            arrival = trip.get('attributes').get('arrival_time')
-
-            if trip_type == line and arrival:
-                time = datetime.fromisoformat(arrival).replace(tzinfo=None)
-                if time > now: # valid time and route
-                    pass
+data = asyncio.run(get_line_times('Red'))
+for station in data:
+    print(f"\n\n{station}")
