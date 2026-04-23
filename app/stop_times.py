@@ -13,7 +13,7 @@ headers = {
     'x-api-key': os.getenv('API_KEY')
 }
 
-async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str) -> dict:
+async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str) -> list[dict]:
     url = 'https://api-v3.mbta.com/predictions'
     params = {
         'filter[stop]': parent_station,
@@ -23,7 +23,7 @@ async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str)
     result = await client.get(url, params=params, headers=headers)
     data = result.json()
     data = data['data']
-    return {parent_station: data}
+    return data
 
 def filter_valid_times(line: str, station_data: dict[list]):
     now = datetime.now()
@@ -42,21 +42,24 @@ def filter_valid_times(line: str, station_data: dict[list]):
 
     return valid[:5]
 
-async def get_line_times(color: str) -> list[dict]:
+async def get_line_times(color: str) -> dict:
+    line_data = {}
+    filtered = [station for station in stc_stations if color in stc_stations[station].get('route')]
+
     async with httpx.AsyncClient() as client:
         data = await asyncio.gather(
-            *[get_station_stop_times(client, station) 
-              for station in stc_stations if color in stc_stations[station].get('route')]
-            )
+            *[get_station_stop_times(client, station) for station in filtered]
+        )
     
-    times = []
-    for station in data:
-        parent = next(iter(station))
-        valid_times = filter_valid_times(color, station)
-        times.append({parent: valid_times})
+    for s, s_results in zip(filtered, data):
+        line_data[s] = s_results
+    
+    # times = []
+    # for station in data:
+    #     parent = next(iter(station))
+    #     valid_times = filter_valid_times(color, station)
+    #     times.append({parent: valid_times})
 
-    return times
+    # return times
 
-data = asyncio.run(get_line_times('Red'))
-for station in data:
-    print(f"\n\n{station}")
+asyncio.run(get_line_times('Red'))
