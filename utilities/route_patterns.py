@@ -37,7 +37,7 @@ async def get_line_route_patterns():
         for route_pattern in r_data:
             route_pattern_id = route_pattern.get('id')
             name: str = route_pattern.get('attributes').get('name')
-            dest = name.split('-')[-1].strip()
+            dest = name.split('-')[0].strip()
             route_patterns[route][route_pattern_id] = dest
 
     return route_patterns

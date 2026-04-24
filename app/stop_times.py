@@ -40,18 +40,19 @@ async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str,
 
     return child_times
 
-def filter_valid_times(station_data: list) -> list[list]:
+def filter_valid_times(station_data: dict[str, list[dict]]) -> dict[str, list[datetime]]:
     now = datetime.now()
-    valid = []
-    
-    for trip in station_data:
-        arrival = trip.get('attributes').get('arrival_time')
+    valid = {}
 
-        if arrival:
-            time = datetime.fromisoformat(arrival).replace(tzinfo=None)
-            if time > now: # valid time
-                trip_id = trip.get('relationships').get('trip').get('data').get('id')
-                valid.append([trip_id, time])
+    for child in station_data:
+        child_data = station_data[child]
+        valid[child] = []
+        for trip in child_data:
+            arrival = trip.get('attributes').get('arrival_time')
+            if arrival:
+                time = datetime.fromisoformat(arrival).replace(tzinfo=None)
+                if time > now: # valid time
+                    valid[child].append(time)
 
     return valid
 
@@ -65,7 +66,8 @@ async def get_line_times(color: str) -> dict[str, dict[str, list[dict]]]:
         )
 
     for s, s_results in zip(filtered, results):
-        line_data[s] = s_results
+        clean = filter_valid_times(station_data=s_results)
+        line_data[s] = clean
     
     return line_data
 
@@ -82,3 +84,4 @@ async def get_child_headsigns(client: httpx.AsyncClient, trip_id: str):
 
 data = asyncio.run(get_line_times('Red'))
 x = data['place-harsq']
+print(data)
