@@ -53,6 +53,7 @@ def filter_valid_times(station_data: dict[str, list[dict]]) -> dict[str, list[da
                 time = datetime.fromisoformat(arrival).replace(tzinfo=None)
                 if time > now: # valid time
                     valid[child].append(time)
+                    valid[child].sort()
 
     return valid
 
@@ -80,8 +81,3 @@ async def get_child_headsigns(client: httpx.AsyncClient, trip_id: str):
     data = data['data']
 
     return data.get('attributes').get('headsign')
-
-
-data = asyncio.run(get_line_times('Red'))
-x = data['place-harsq']
-print(data)
