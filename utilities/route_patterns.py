@@ -32,11 +32,13 @@ async def get_line_route_patterns():
     # get each route pattern for each line
     for route, response in zip(routes, data):
         r_data = response.json()['data']
-        route_patterns[route] = []
+        route_patterns[route] = {}
 
         for route_pattern in r_data:
             route_pattern_id = route_pattern.get('id')
-            route_patterns[route].append(route_pattern_id)
+            name: str = route_pattern.get('attributes').get('name')
+            dest = name.split('-')[-1].strip()
+            route_patterns[route][route_pattern_id] = dest
 
     return route_patterns
 
