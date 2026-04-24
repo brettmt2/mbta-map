@@ -8,7 +8,7 @@ load_dotenv()
 
 '''
 Helper function to get static list of station names.
-Outputs static/stations.json
+Outputs static/stations.py
 '''
 async def get_station_metadata():
     stations = {}
