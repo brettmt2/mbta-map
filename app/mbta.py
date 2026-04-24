@@ -57,14 +57,13 @@ def filter_valid_times(station_data: dict[str, list[dict]]) -> dict[str, list[da
 
     return valid
 
-async def get_line_times(color: str) -> dict[str, dict[str, list[dict]]]:
+async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dict[str, list[dict]]]:
     line_data = {}
     filtered = [station for station in stc_stations if color in stc_stations[station].get('route')]
 
-    async with httpx.AsyncClient() as client:
-        results = await asyncio.gather(
-            *[get_station_stop_times(client, station, color) for station in filtered]
-        )
+    results = await asyncio.gather(
+        *[get_station_stop_times(client, station, color) for station in filtered]
+    )
 
     for s, s_results in zip(filtered, results):
         clean = filter_valid_times(station_data=s_results)
