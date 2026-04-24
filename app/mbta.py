@@ -68,6 +68,13 @@ def filter_valid_times(station_data: dict[str, list[dict]]) -> dict[str, list[da
 
     return valid
 
+async def get_vehicle_status(client: httpx.AsyncClient, v_id: str):
+    url = f'https://api-v3.mbta.com/vehicles/{v_id}'
+    result = await client.get(url, headers=headers)
+    data = result.json()
+
+    return data['data'].get('attributes').get('current_status')
+
 async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dict[str, list[dict]]]:
     line_data = {}
     filtered = [station for station in stc_stations if color in stc_stations[station].get('route')]
@@ -85,9 +92,22 @@ async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dic
         for _, trips in clean.items():
             for trip in trips:
                 v_ids.add(trip['v_id'])
-        
+
         line_data[s] = clean
-        
+
+    statuses = await asyncio.gather(
+        *[get_vehicle_status(client, id) for id in v_ids]
+    )
+
+    status_map = {}
+    for v_id, status in zip(v_ids, statuses):
+        status_map[v_id] = status
+
+    for s in line_data:
+        for _, trips in line_data[s].items():
+            for trip in trips:
+                trip['status'] = status_map[trip.get('v_id')]
+
     return line_data
 
 # old approach, found a better solution. this was too many api calls
@@ -103,5 +123,6 @@ async def get_child_headsigns(client: httpx.AsyncClient, trip_id: str):
 if __name__ == "__main__":
     async def main():
         async with httpx.AsyncClient() as client:
-            await get_line_times(client, 'Red')
+            res = await get_line_times(client, 'Red')
+            print(res['place-harsq'])
     asyncio.run(main())
