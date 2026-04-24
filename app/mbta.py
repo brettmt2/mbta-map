@@ -49,11 +49,22 @@ def filter_valid_times(station_data: dict[str, list[dict]]) -> dict[str, list[da
         valid[child] = []
         for trip in child_data:
             arrival = trip.get('attributes').get('arrival_time')
+            departure = trip.get('attributes').get('departure_time')
             if arrival:
                 time = datetime.fromisoformat(arrival).replace(tzinfo=None)
-                if time > now: # valid time
-                    valid[child].append(time)
-                    valid[child].sort()
+                # from mbta best practices guide:
+                # "If departure_time is null, do not show this prediction because riders won’t be able to board the vehicle."
+                if time > now and departure: # valid time:
+                    v_id = trip.get('relationships').get('vehicle').get('data').get('id')
+                    valid[child].append({
+                        "time": time,
+                        "v_id": v_id
+                    })
+                    
+        valid[child].sort(key=lambda x: x['time'])
+
+    for child in valid:
+        valid[child] = valid[child][:5]
 
     return valid
 
@@ -65,10 +76,18 @@ async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dic
         *[get_station_stop_times(client, station, color) for station in filtered]
     )
 
+    v_ids = set()
+
     for s, s_results in zip(filtered, results):
         clean = filter_valid_times(station_data=s_results)
+
+        # get each unique vehicle ID to get route status
+        for _, trips in clean.items():
+            for trip in trips:
+                v_ids.add(trip['v_id'])
+        
         line_data[s] = clean
-    
+        
     return line_data
 
 # old approach, found a better solution. this was too many api calls
@@ -80,3 +99,9 @@ async def get_child_headsigns(client: httpx.AsyncClient, trip_id: str):
     data = data['data']
 
     return data.get('attributes').get('headsign')
+
+if __name__ == "__main__":
+    async def main():
+        async with httpx.AsyncClient() as client:
+            await get_line_times(client, 'Red')
+    asyncio.run(main())
