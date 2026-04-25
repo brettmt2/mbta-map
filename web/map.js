@@ -1,4 +1,5 @@
 import { stations, lines, icons } from './metadata.js'
+import { getLineTimes } from './api.js'
 
 function initMap() {
     const map = L.map('map').setView([42.356428, -71.078908], 14.5);
@@ -21,6 +22,7 @@ function initMap() {
 }
 
 function initMarkers(map) {
+    let markers = {}
     for (const color of lines) {
         const data = Object.fromEntries(
             Object.entries(stations).filter(
@@ -29,6 +31,8 @@ function initMarkers(map) {
         );
 
         for (const [parent, metadata] of Object.entries(data)){
+            if (parent in markers) continue; 
+
             const coords = metadata.coords;
             let ic = L.icon({
                 iconUrl: icons[color],
@@ -37,9 +41,53 @@ function initMarkers(map) {
 
             let m = L.marker(L.latLng(coords[1], coords[0]), {icon: ic});
             m.addTo(map);
-        };  
+
+            markers[parent] = {'marker': m};
+
+        }; 
+    }
+
+    return markers;
+}
+
+async function assignTimesToMarkers(markers){
+    for (const color of lines) {
+        const data = await getLineTimes(color);
+        for (const [parent, times] of Object.entries(data)) {
+            markers[parent][color] = times;
+        }
     }
 }
 
+async function updatePopUps(){
+    await assignTimesToMarkers(markers);
+
+    for (const [parent, content] of Object.entries(markers)) {
+        let html = "";
+
+        for (const [key, data] of Object.entries(content)) {
+            if (key === "marker") continue;
+
+            html += `<div><strong>${key}</strong>`;
+
+            for (const [dest, times] of Object.entries(data)) {
+                html += `
+                    <div>
+                        ${dest}
+                        <ul>
+                            ${times.map((time) => `<li>${Object.values(time)}</li>`).join("")}
+                        </ul>
+                    </div>`;
+            }
+
+            html += `</div>`;
+        }
+
+        content.marker.bindPopup(html);
+    }
+};
+
 const map = initMap();
-initMarkers(map);
+const markers = initMarkers(map);
+
+updatePopUps()
