@@ -5,7 +5,10 @@ import httpx
 import sys
 sys.path.append(".")
 
+from fastapi.middleware.cors import CORSMiddleware
+
 from app.mbta import get_line_times
+
 
 client: httpx.AsyncClient = None
 
@@ -20,6 +23,13 @@ async def lifespan(_: FastAPI):
     await client.aclose()
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/times/{line_color}")
 async def get_times(line_color: str):
