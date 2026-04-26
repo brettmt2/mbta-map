@@ -6,6 +6,7 @@ import asyncio
 from datetime import datetime
 from static.stc_stations import stc_stations
 from static.stc_route_patterns import route_patterns
+from app.utils import realtime_display
 
 load_dotenv()
 
@@ -40,8 +41,7 @@ async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str,
 
     return child_times
 
-def filter_valid_times(station_data: dict[str, list[dict]]) -> dict[str, list[datetime]]:
-    now = datetime.now()
+def filter_valid_times(now, station_data: dict[str, list[dict]]) -> dict[str, list[datetime]]:
     valid = {}
 
     for child in station_data:
@@ -56,26 +56,26 @@ def filter_valid_times(station_data: dict[str, list[dict]]) -> dict[str, list[da
                 # "If departure_time is null, do not show this prediction because riders won’t be able to board the vehicle."
                 if time > now and departure: # valid time:
                     v_id = trip.get('relationships').get('vehicle').get('data').get('id')
+                    stop_id = trip.get('relationships').get('stop').get('data').get('id')
                     valid[child].append({
                         "time": time,
-                        "v_id": v_id
+                        "v_id": v_id,
+                        "stop_id": stop_id
                     })
                     
         valid[child].sort(key=lambda x: x['time'])
 
-    for child in valid:
-        valid[child] = valid[child][:5]
-
     return valid
-
+    
 async def get_vehicle_status(client: httpx.AsyncClient, v_id: str):
     url = f'https://api-v3.mbta.com/vehicles/{v_id}'
     result = await client.get(url, headers=headers)
     data = result.json()
 
-    return data['data'].get('attributes').get('current_status')
+    return data['data'].get('attributes').get('current_status'), data['data'].get('relationships').get('stop').get('data').get('id')
 
 async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dict[str, list[dict]]]:
+    now = datetime.now()
     line_data = {}
     filtered = [station for station in stc_stations if color in stc_stations[station].get('route')]
 
@@ -86,7 +86,7 @@ async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dic
     v_ids = set()
 
     for s, s_results in zip(filtered, results):
-        clean = filter_valid_times(station_data=s_results)
+        clean = filter_valid_times(now, station_data=s_results)
 
         # get each unique vehicle ID to get route status
         for _, trips in clean.items():
@@ -101,12 +101,15 @@ async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dic
 
     status_map = {}
     for v_id, status in zip(v_ids, statuses):
-        status_map[v_id] = status
+        status_map[v_id] = {'status': status[0], 'stop_id': status[1]}
 
     for s in line_data:
         for _, trips in line_data[s].items():
             for trip in trips:
-                trip['status'] = status_map[trip.get('v_id')]
+                trip['status'] = status_map[trip.get('v_id')]['status']
+                trip['v_curr_stop'] =  status_map[trip.get('v_id')]['stop_id']
+        
+        # line_data[s] = realtime_display(now, line_data[s])
 
     return line_data
 
@@ -124,5 +127,6 @@ if __name__ == "__main__":
     async def main():
         async with httpx.AsyncClient() as client:
             res = await get_line_times(client, 'Red')
+
             print(res['place-harsq'])
     asyncio.run(main())
