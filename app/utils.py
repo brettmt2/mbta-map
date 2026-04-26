@@ -31,37 +31,3 @@ def realtime_display(now, data):
             data[dest] = keep[:5]
 
     return data
-                                        
-
-
-
-
-
-                    
-
-
-
-
-
-
-
-
-
-
-
-                    
-    #                 if total_seconds < 30:
-    #                     time_str = 'ARR'
-    #                 elif 0 == 0:
-
-        
-                        
-                    
-    #                 # if total_seconds < 60:
-    #                 #     time_obj['time'] = f'{total_seconds} sec'
-    #                 # else:
-    #                 #     time_obj['time'] = f'{total_seconds // 60} min'
-
-    #     # data[dest] = keep[:5]
-
-    # # return data

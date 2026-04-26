@@ -68,14 +68,14 @@ async function updatePopUps(){
         for (const [key, data] of Object.entries(content)) {
             if (key === "marker") continue;
 
-            html += `<div><strong>${key}</strong>`;
+            html += `<div style="display:flex; gap:12px; flex-wrap:wrap;"><strong style="display:block; width:100%;">${key}</strong>`;
 
             for (const [dest, times] of Object.entries(data)) {
                 html += `
                     <div>
                         ${dest}
                         <ul>
-                            ${times.map((time) => `<li>${Object.values(time)}</li>`).join("")}
+                            ${times.map((time) => `<li>${Object.values(time)[0]}</li>`).join("")}
                         </ul>
                     </div>`;
             }
@@ -83,8 +83,10 @@ async function updatePopUps(){
             html += `</div>`;
         }
 
-        content.marker.bindPopup(html);
+        content.marker.bindPopup(html, { minWidth: 300 });
     }
+
+    console.log(markers);
 };
 
 const map = initMap();
