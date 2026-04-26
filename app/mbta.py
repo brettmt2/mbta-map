@@ -109,7 +109,7 @@ async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dic
                 trip['status'] = status_map[trip.get('v_id')]['status']
                 trip['v_curr_stop'] =  status_map[trip.get('v_id')]['stop_id']
         
-        # line_data[s] = realtime_display(now, line_data[s])
+        line_data[s] = realtime_display(now, line_data[s])
 
     return line_data
 
