@@ -6,6 +6,8 @@ import json
 
 load_dotenv()
 
+routes = ['Red', 'Orange', 'Blue', 'Green-B', 'Green-C', 'Green-D', 'Green-E']
+
 '''
 Helper function to get static list of station names.
 Outputs static/stations.py
@@ -13,7 +15,6 @@ Outputs static/stations.py
 async def get_station_metadata():
     stations = {}
     url = 'https://api-v3.mbta.com/stops'
-    routes = ['Red', 'Orange']
     headers = {
         'accept': 'application/vnd.api+json',
         'x-api-key': os.getenv('API_KEY')
@@ -54,7 +55,6 @@ Outputs static/route_patterns.py
 '''
 async def get_line_route_patterns():
     url = 'https://api-v3.mbta.com/route_patterns'
-    routes = ['Red', 'Orange']
     headers = {
         'accept': 'application/vnd.api+json',
         'x-api-key': os.getenv('API_KEY')
@@ -79,7 +79,7 @@ async def get_line_route_patterns():
         for route_pattern in r_data:
             route_pattern_id = route_pattern.get('id')
             name: str = route_pattern.get('attributes').get('name')
-            dest = name.split('-')[0].strip()
+            dest = name.split('-')[1].strip()
             route_patterns[route][route_pattern_id] = dest
 
     return route_patterns
@@ -117,3 +117,8 @@ def realtime_display(now, data):
             data[dest] = keep[:5]
 
     return data
+
+# data = asyncio.run(get_line_route_patterns())
+
+# with open("app/static/route_patterns.json", "w") as f:
+#     json.dump(data, f, indent=2)

@@ -52,6 +52,7 @@ function initMarkers(map) {
 
 async function assignTimesToMarkers(markers){
     for (const color of lines) {
+        console.log(color, 'getting line times.....')
         const data = await getLineTimes(color);
         for (const [parent, times] of Object.entries(data)) {
             markers[parent][color] = times;
@@ -63,12 +64,12 @@ async function updatePopUps(){
     await assignTimesToMarkers(markers);
 
     for (const [parent, content] of Object.entries(markers)) {
-        let html = "";
-
+        let html = `<h3>${stations[parent].name}</h3>`;
+        
         for (const [key, data] of Object.entries(content)) {
             if (key === "marker") continue;
 
-            html += `<div style="display:flex; gap:12px; flex-wrap:wrap;"><strong style="display:block; width:100%;">${key}</strong>`;
+            html += `<div style="display:flex; gap:12px; flex-wrap:wrap;"><strong style="display:block; width:100%;"></strong>`;
 
             for (const [dest, times] of Object.entries(data)) {
                 html += `
@@ -85,8 +86,6 @@ async function updatePopUps(){
 
         content.marker.bindPopup(html, { minWidth: 300 });
     }
-
-    console.log(markers);
 };
 
 const map = initMap();
