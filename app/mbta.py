@@ -4,8 +4,8 @@ import httpx
 import asyncio
 
 from datetime import datetime
-from static.stc_stations import stc_stations
-from static.stc_route_patterns import route_patterns
+from app.static.stations import stations
+from app.static.route_patterns import route_patterns
 from app.utils import realtime_display
 
 load_dotenv()
@@ -77,7 +77,7 @@ async def get_vehicle_status(client: httpx.AsyncClient, v_id: str):
 async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dict[str, list[dict]]]:
     now = datetime.now()
     line_data = {}
-    filtered = [station for station in stc_stations if color in stc_stations[station].get('route')]
+    filtered = [station for station in stations if color in stations[station].get('route')]
 
     results = await asyncio.gather(
         *[get_station_stop_times(client, station, color) for station in filtered]

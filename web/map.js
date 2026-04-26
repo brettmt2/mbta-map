@@ -4,11 +4,11 @@ import { getLineTimes } from './api.js'
 function initMap() {
     const map = L.map('map').setView([42.356428, -71.078908], 14.5);
     
-    const corner1 = L.latLng(42.325532, -71.158761);
-    const corner2 = L.latLng(42.400203, -71.010778);
-    const bounds = L.latLngBounds(corner1, corner2);
+    // const corner1 = L.latLng(42.325532, -71.158761);
+    // const corner2 = L.latLng(42.400203, -71.010778);
+    // const bounds = L.latLngBounds(corner1, corner2);
     
-    map.setMaxBounds(bounds);
+    // map.setMaxBounds(bounds);
     map.options.maxBoundsViscosity = 1.0;
     map.setMinZoom(14);
     map.setMaxZoom(19);
