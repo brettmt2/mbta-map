@@ -122,3 +122,40 @@ def realtime_display(now, data):
 
 # with open("app/static/route_patterns.json", "w") as f:
 #     json.dump(data, f, indent=2)
+
+'''
+Helper function to get canonical shapes for each route.
+Outputs static/shapes.json
+'''
+async def get_shapes():
+    url = 'https://api-v3.mbta.com/shapes'
+    headers = {
+        'accept': 'application/vnd.api+json',
+        'x-api-key': os.getenv('API_KEY')
+    }
+
+    async with httpx.AsyncClient() as client:
+        data = await asyncio.gather(
+           *[client.get(url,
+               headers=headers,
+               params={
+                   'filter[route]': route
+               }
+            ) for route in routes]
+        )
+
+    shapes = {}
+    for route, response in zip(routes, data):
+        r_data = response.json()['data']
+        shapes[route] = [
+            s['attributes']['polyline']
+            for s in r_data
+            if s['id'].startswith('canonical-')
+        ]
+
+    return shapes
+
+# data = asyncio.run(get_shapes())
+
+# with open("app/static/shapes.json", "w") as f:
+#     json.dump(data, f, indent=2)
