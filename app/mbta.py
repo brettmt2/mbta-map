@@ -10,10 +10,11 @@ from app.utils import realtime_display
 
 load_dotenv()
 
-headers = {
-    'accept': 'application/vnd.api+json',
-    'x-api-key': os.getenv('API_KEY')
-}
+def get_headers():
+    return {
+        'accept': 'application/vnd.api+json',
+        'x-api-key': os.getenv('API_KEY')
+    }
 
 async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str, color: str) -> dict[str, list[dict]]:
     child_times = {}
@@ -26,7 +27,7 @@ async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str,
             'filter[route]': color,
             'filter[route_pattern]': rp,
             'sort': 'arrival_time'
-        }, headers=headers) 
+        }, headers=get_headers()) 
         for rp in route_patterns[color]]
     )
 
@@ -69,7 +70,7 @@ def filter_valid_times(now, station_data: dict[str, list[dict]]) -> dict[str, li
     
 async def get_vehicle_status(client: httpx.AsyncClient, v_id: str):
     url = f'https://api-v3.mbta.com/vehicles/{v_id}'
-    result = await client.get(url, headers=headers)
+    result = await client.get(url, headers=get_headers())
     data = result.json()
 
     return data['data'].get('attributes').get('current_status'), data['data'].get('relationships').get('stop').get('data').get('id')
@@ -116,7 +117,7 @@ async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dic
 # old approach, found a better solution. this was too many api calls
 async def get_child_headsigns(client: httpx.AsyncClient, trip_id: str):
     url = f'https://api-v3.mbta.com/trips/{trip_id}'
-    result = await client.get(url, headers=headers) 
+    result = await client.get(url, headers=get_headers()) 
 
     data = result.json()
     data = data['data']

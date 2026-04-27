@@ -2,9 +2,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import httpx
 
-import sys
-sys.path.append(".")
-
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.mbta import get_line_times
