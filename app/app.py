@@ -3,11 +3,9 @@ from fastapi import FastAPI
 import httpx
 
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from app.mbta import get_line_times
-
-import os
-
 
 client: httpx.AsyncClient = None
 
@@ -33,3 +31,5 @@ app.add_middleware(
 @app.get("/times/{line_color}")
 async def get_times(line_color: str):
     return await get_line_times(client=client, color=line_color)
+
+app.mount("/", StaticFiles(directory="web", html=True), name="web")
