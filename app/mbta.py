@@ -43,9 +43,6 @@ async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str,
     return child_times
 
 def filter_valid_times(now, station_data: dict[str, list[dict]]) -> dict[str, list[datetime]]:
-    print("filtering times...")
-    print(station_data)
-    
     valid = {}
 
     for child in station_data:
@@ -55,13 +52,8 @@ def filter_valid_times(now, station_data: dict[str, list[dict]]) -> dict[str, li
             arrival = trip.get('attributes').get('arrival_time')
             departure = trip.get('attributes').get('departure_time')
             if arrival:
-                time = datetime.fromisoformat(arrival).replace(tzinfo=None)
-                print(f"NOW: {now}")
-                print(f"TIME: {time}, DEPARTURE: {departure}")
-                print(f"PASSES: {time > now and departure}")
-                # from mbta best practices guide:
-                # "If departure_time is null, do not show this prediction because riders won’t be able to board the vehicle."
-                if time > now and departure: # valid time:
+                time = datetime.fromisoformat(arrival).astimezone(timezone.utc).replace(tzinfo=None)
+                if time > now and departure:
                     v_id = trip.get('relationships').get('vehicle').get('data').get('id')
                     stop_id = trip.get('relationships').get('stop').get('data').get('id')
                     valid[child].append({
@@ -73,7 +65,7 @@ def filter_valid_times(now, station_data: dict[str, list[dict]]) -> dict[str, li
         valid[child].sort(key=lambda x: x['time'])
 
     return valid
-    
+
 async def get_vehicle_status(client: httpx.AsyncClient, v_id: str):
     url = f'https://api-v3.mbta.com/vehicles/{v_id}'
     result = await client.get(url, headers=get_headers())
