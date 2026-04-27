@@ -43,6 +43,12 @@ async def debug():
         "api_key_preview": key[:6] + "..." if key else None
     }
 
+def get_headers():
+    return {
+        'accept': 'application/vnd.api+json',
+        'x-api-key': os.getenv('API_KEY')
+    }
+
 @app.get("/ping-mbta")
 async def ping_mbta():
     res = await client.get("https://api-v3.mbta.com/routes", headers=get_headers())
