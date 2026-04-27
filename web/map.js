@@ -70,7 +70,10 @@ async function updatePopUps(){
             html += `<img src="${stationImgs[parent]}" style="width:100%; height:120px; object-fit:cover; display:block;">`;
         }
         
-        html += `<div style="background:${stations[parent].route.length === 1 ? hex[stations[parent].route[0]] : '#888'}; color:white; padding:4px 12px; border-radius:3px; font-size:14px; font-weight:bold;">${stations[parent].name}</div>`;        
+        const allSameColor = stations[parent].route.every(r => hex[r] === hex[stations[parent].route[0]]);
+        const headerColor = allSameColor ? hex[stations[parent].route[0]] : '#888';
+
+        html += `<div style="background:${headerColor}; color:white; padding:4px 12px; border-radius:3px; font-size:14px; font-weight:bold;">${stations[parent].name}</div>`;        
         for (const [key, data] of Object.entries(content)) {
 
             if (key === "marker") continue;
