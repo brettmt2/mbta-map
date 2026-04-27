@@ -43,6 +43,9 @@ async def get_station_stop_times(client: httpx.AsyncClient, parent_station: str,
     return child_times
 
 def filter_valid_times(now, station_data: dict[str, list[dict]]) -> dict[str, list[datetime]]:
+    print("filtering times...")
+    print(station_data)
+    
     valid = {}
 
     for child in station_data:
