@@ -8,7 +8,7 @@ from app.static.stations import stations
 from app.static.route_patterns import route_patterns
 from app.utils import realtime_display
 
-load_dotenv()
+load_dotenv(override=False)
 
 def get_headers():
     return {
