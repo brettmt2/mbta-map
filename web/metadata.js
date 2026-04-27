@@ -1210,7 +1210,7 @@ export const stations = {
   }
 }
 
-export const lines = ['Red', 'Orange', 'Blue', 'Green-B', 'Green-C', 'Green-D']
+export const lines = ['Red', 'Orange', 'Blue', 'Green-B', 'Green-C', 'Green-D', 'Green-E']
 
 export const icons = {
     'Red': './img/red.png',
@@ -1220,4 +1220,43 @@ export const icons = {
     'Green-D': './img/green.png',
     'Green-E': './img/green.png',
     'Blue': './img/blue.png'
+}
+
+export const hex = {
+    'Red': '#DA291C',
+    'Orange': '#ED8B00',
+    'Blue': '#003DA5',
+    'Green-B': '#00843D',
+    'Green-C': '#00843D',
+    'Green-D': '#00843D',
+    'Green-E': '#00843D',
+}
+
+export const stationImgs = {
+    'place-harsq': './img/stations/harvard.jpg',
+    'place-cntsq': './img/stations/central.jpg',
+    'place-knncl': './img/stations/kendall.jpg',
+    'place-chmnl': './img/stations/mgh.jpg',
+    'place-pktrm': './img/stations/park.jpg',
+    'place-dwnxg': './img/stations/downtown.jpg',
+    'place-sstat': './img/stations/south.jpg',
+    'place-tumnl': './img/stations/tufts.jpg',
+    'place-bbsta': './img/stations/backbay.jpg',
+    'place-north': './img/stations/north.jpg',
+    'place-haecl': './img/stations/haymarket.jpg',
+    'place-state': './img/stations/state.jpg',
+    'place-chncl': './img/stations/chinatown.jpg',
+    'place-stmar': './img/stations/stmarys.jpg',
+    'place-scmnl': './img/stations/science.jpg',
+    'place-coecl': './img/stations/copley.jpg',
+    'place-gover': './img/stations/gov.jpg',
+    'place-boyls': './img/stations/boylston.jpg',
+    'place-armnl': './img/stations/arlington.jpg',
+    'place-prmnl': './img/stations/prudential.jpg',
+    'place-hymnl': './img/stations/hynes.jpg',
+    'place-kencl': './img/stations/kenmore.jpg',
+    'place-symcl': './img/stations/symphony.jpg',
+    'place-fenwy': './img/stations/fenway.jpg',
+    'place-bomnl': './img/stations/bowdoin.jpg',
+    'place-aqucl': './img/stations/aquarium.jpg'
 }

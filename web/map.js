@@ -1,4 +1,4 @@
-import { stations, lines, icons } from './metadata.js'
+import { stations, lines, icons, hex, stationImgs } from './metadata.js'
 import { getLineTimes } from './api.js'
 
 function initMap() {
@@ -64,19 +64,26 @@ async function updatePopUps(){
     await assignTimesToMarkers(markers);
 
     for (const [parent, content] of Object.entries(markers)) {
-        let html = `<h3>${stations[parent].name}</h3>`;
+        let html = ''
+
+        if (stationImgs[parent]) {
+            html += `<img src="${stationImgs[parent]}" style="width:100%; height:120px; object-fit:cover; display:block;">`;
+        }
         
+        html += `<div style="background:${stations[parent].route.length === 1 ? hex[stations[parent].route[0]] : '#888'}; color:white; padding:4px 12px; border-radius:3px; font-size:14px; font-weight:bold;">${stations[parent].name}</div>`;        
         for (const [key, data] of Object.entries(content)) {
+
             if (key === "marker") continue;
+            const color = hex[key];
 
             html += `<div style="display:flex; gap:12px; flex-wrap:wrap;"><strong style="display:block; width:100%;"></strong>`;
 
             for (const [dest, times] of Object.entries(data)) {
                 html += `
                     <div>
-                        ${dest}
-                        <ul>
-                            ${times.map((time) => `<li>${Object.values(time)[0]}</li>`).join("")}
+                        <strong style="color:${color}; display:block; border-bottom:1px solid ${color}; padding-bottom:2px;">${dest}</strong>
+                        <ul style="padding:0; margin:4px 0 0 0;">
+                            ${times.map((time) => `<li style="list-style:none; padding:0; margin:0;">${Object.values(time)[0]}</li>`).join("")}
                         </ul>
                     </div>`;
             }
