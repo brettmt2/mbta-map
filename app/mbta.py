@@ -56,6 +56,9 @@ def filter_valid_times(now, station_data: dict[str, list[dict]]) -> dict[str, li
             departure = trip.get('attributes').get('departure_time')
             if arrival:
                 time = datetime.fromisoformat(arrival).replace(tzinfo=None)
+                print(f"NOW: {now}")
+                print(f"TIME: {time}, DEPARTURE: {departure}")
+                print(f"PASSES: {time > now and departure}")
                 # from mbta best practices guide:
                 # "If departure_time is null, do not show this prediction because riders won’t be able to board the vehicle."
                 if time > now and departure: # valid time:
