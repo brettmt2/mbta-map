@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import httpx
 import asyncio
 
-from datetime import datetime
+from datetime import datetime, timezone
 from app.static.stations import stations
 from app.static.route_patterns import route_patterns
 from app.utils import realtime_display
@@ -76,7 +76,7 @@ async def get_vehicle_status(client: httpx.AsyncClient, v_id: str):
     return data['data'].get('attributes').get('current_status'), data['data'].get('relationships').get('stop').get('data').get('id')
 
 async def get_line_times(client: httpx.AsyncClient, color: str) -> dict[str, dict[str, list[dict]]]:
-    now = datetime.now()
+    now = datetime.now(timezone.utc).replace(tzinfo=None)
     line_data = {}
     filtered = [station for station in stations if color in stations[station].get('route')]
 
