@@ -1219,5 +1219,5 @@ export const icons = {
     'Green-C': './img/green.png',
     'Green-D': './img/green.png',
     'Green-E': './img/green.png',
-    'Blue': './img/green.png'
+    'Blue': './img/blue.png'
 }
