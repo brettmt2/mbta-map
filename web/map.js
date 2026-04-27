@@ -1,4 +1,4 @@
-import { stations, lines, icons, hex, stationImgs } from './metadata.js'
+import { stations, lines, icons, hex, stationImgs, shapes } from './metadata.js'
 import { getLineTimes } from './api.js'
 
 function initMap() {
@@ -19,6 +19,15 @@ function initMap() {
     }).addTo(map);
 
     return map;
+}
+
+function initPolylines(map) {
+    for (const [color, shapeData] of Object.entries(shapes)) {
+        for (const encoded of shapeData) {
+            const coords = polyline.decode(encoded);
+            const pl = L.polyline(coords, {color: hex[color]}).addTo(map);
+        }
+    }
 }
 
 function initMarkers(map) {
@@ -99,6 +108,7 @@ async function updatePopUps(){
 };
 
 const map = initMap();
+initPolylines(map);
 const markers = initMarkers(map);
 
 updatePopUps()

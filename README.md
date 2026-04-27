@@ -3,6 +3,7 @@ Interactive Map and Tracker of Boston's MBTA subway system
 
 https://mbta-map.up.railway.app/
 
+<img width="680" height="430" alt="image" src="preview.jpg" />
 ---
 
 ## what this project is
