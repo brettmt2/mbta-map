@@ -1,13 +1,21 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 import httpx
+import json
+
+import os
+from dotenv import load_dotenv
 
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import redis
 
 from app.mbta import get_line_times
 
+load_dotenv(override=False)
+
 client: httpx.AsyncClient = None
+r: redis.Redis = None
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -15,9 +23,17 @@ async def lifespan(_: FastAPI):
     global client
     client = httpx.AsyncClient()
 
+    # load Redis manager
+    global r
+    host = os.getenv('REDIS_HOST')
+    port = int(os.getenv('REDIS_PORT'))
+    password = os.getenv('REDIS_PASSWORD')
+    r = redis.Redis(host=host, port=port, password=password, decode_responses=True)
+
     yield
     
     await client.aclose()
+    r.close()
 
 app = FastAPI(lifespan=lifespan)
 
@@ -30,6 +46,14 @@ app.add_middleware(
 
 @app.get("/times/{line_color}")
 async def get_times(line_color: str):
-    return await get_line_times(client=client, color=line_color)
+    cached = r.get(f'data-{line_color}')
+
+    if cached:
+        return json.loads(cached)
+    else:
+        data = await get_line_times(client=client, color=line_color)
+        r.setex(f'data-{line_color}', 60, json.dumps(data))
+    
+        return data
 
 app.mount("/", StaticFiles(directory="web", html=True), name="web")
