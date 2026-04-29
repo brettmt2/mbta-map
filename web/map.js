@@ -112,4 +112,8 @@ initPolylines(map);
 const markers = initMarkers(map);
 
 updatePopUps();
-setInterval(updatePopUps, 60000);
+
+setInterval(async () => {
+    console.log('interval fired');
+    await updatePopUps();
+}, 60000);
