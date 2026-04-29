@@ -39,8 +39,8 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_methods=["*"],
+    allow_origins=["https://mbta-map.up.railway.app"],
+    allow_methods=["GET"],
     allow_headers=["*"],
 )
 
