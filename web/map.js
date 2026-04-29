@@ -111,4 +111,5 @@ const map = initMap();
 initPolylines(map);
 const markers = initMarkers(map);
 
-updatePopUps()
+updatePopUps();
+setInterval(updatePopUps, 60000);
