@@ -50,14 +50,14 @@ async def get_times(line_color: str):
 
     if cached:
         return json.loads(cached)
-    else:
-        try:
-            data = await get_line_times(client=client, color=line_color)
-            r.setex(f'data-{line_color}', 60, json.dumps(data))
-        except Exception as e:
-            print(f'Error fetching data for {line_color}: {e}')
-            data = {}
-    
+
+    try:
+        data = await get_line_times(client=client, color=line_color)
+        r.setex(f'data-{line_color}', 60, json.dumps(data))
         return data
+    except Exception as e:
+        print(f'Error fetching data for {line_color}: {e}')
+        stale = r.get(f'data-{line_color}')
+        return json.loads(stale) if stale else {}
 
 app.mount("/", StaticFiles(directory="web", html=True), name="web")
