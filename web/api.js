@@ -6,15 +6,3 @@ export async function getLineTimes(color) {
 
     return data;
 }
-
-// let x = await getLineTimes('Orange');
-// console.log(x);
-
-// learning js... came up with this, found a better way by splitting entries
-// const x = Object.fromEntries(
-//     Object.entries(stations).filter(
-//         (station) => Object.values(station[1])[1].includes('Red')
-//     )
-// );
-
-// http://127.0.0.1:8000
