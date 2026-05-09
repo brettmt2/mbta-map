@@ -53,7 +53,7 @@ async def get_times(line_color: str):
 
     try:
         data = await get_line_times(client=client, color=line_color)
-        r.setex(f'data-{line_color}', 60, json.dumps(data))
+        r.setex(f'data-{line_color}', 55, json.dumps(data))
         return data
     except Exception as e:
         print(f'Error fetching data for {line_color}: {e}')
